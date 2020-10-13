@@ -19,7 +19,7 @@ const Avaliacao = connection.define('avaliacoe',{
     },
 
     Question_id_answer:{
-        type: Sequelize.TEXT, //JSON //colocar .ARRAY estava dando erro mysql não aceita
+        type: Sequelize.JSON, //JSON //colocar .ARRAY estava dando erro mysql não aceita
         allownull: false
     },
     
