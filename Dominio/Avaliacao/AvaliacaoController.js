@@ -33,13 +33,26 @@ var Question_id_answer = {
     Question_id_answer_d: 0 
 }
 
-//Recebe dados do front de Form_id User_id e Cost_center_id
+/*Recebe dados do front de Form_id User_id e Cost_center_id 
+e Cria a avaliação no Banco de dados só com Centro de custo */
 router.post("/avaliacao/id",(req,res) =>{  
-    Form_id = req.body.Form_id;
-    User_id = req.body.User_id;
-    Cost_center_id = req.body.Cost_center_id;
-
-    res.send("Form_id: " + Form_id + " User_id: " + User_id + " Cost_center_id: " + Cost_center_id)
+        Form_id = req.body.Form_id;
+        User_id = req.body.User_id;
+        Cost_center_id = req.body.Cost_center_id;
+        Avaliacao.create({
+            Form_id: Form_id,
+            User_id: User_id,
+            Cost_center_id: Cost_center_id,
+            Question_id_answer: Question_id_answer,
+            Answer_average_u: Answer_average_u,
+            Answer_average_o: Answer_average_o,
+            Answer_average_l: Answer_average_l,
+            Answer_average_p: Answer_average_p,
+            Answer_average_d: Answer_average_d,
+            Answer_average_3s: Answer_average_3s,
+            Answer_average_5s: Answer_average_5s       
+         });
+    //res.send("Form_id: " + Form_id + " User_id: " + User_id + " Cost_center_id: " + Cost_center_id)
 });
 
 //Recebe dados do Front (utilização) e armazena no Json (Question_id_answer)
@@ -88,57 +101,6 @@ var Answer_average_3s = 3;
 var Answer_average_5s = 5;
 
 
-
-// //Calcula Média de cada S e 5S e 3S
-// router.post("/calculamedia",(req,res) =>{
-
-
-//     Answer_average_l = math.mean(Question_id_answer.Question_id_answer_l.notas);
-//     Answer_average_o = math.mean(Question_id_answer.Question_id_answer_o.notas);
-//     Answer_average_u = math.mean(Question_id_answer.Question_id_answer_u.notas);
-//     Answer_average_p = math.mean(Question_id_answer.Question_id_answer_p.notas);
-//     Answer_average_d = math.mean(Question_id_answer.Question_id_answer_d.notas);
-
-//     Answer_average_3s = math.mean(Answer_average_u,Answer_average_o,Answer_average_l)
-//     Answer_average_5s = math.mean(Answer_average_u,Answer_average_o,Answer_average_l,Answer_average_p,Answer_average_d)
-
-//     res.send(Answer_average_u +  " " +  Answer_average_o +  " " +  Answer_average_l + " " +  Answer_average_p + " " +  Answer_average_d + " " +  Answer_average_3s + " " + Answer_average_5s)
-// });
-
-
-//Salva no Banco de dados
-router.post("/salvabd", (req,res) => {
-   (async() =>{
-    await Avaliacao.create({
-        Form_id: Form_id,
-        User_id: User_id,
-        Cost_center_id: Cost_center_id,
-        Question_id_answer: Question_id_answer,
-        Answer_average_u: Answer_average_u,
-        Answer_average_o: Answer_average_o,
-        Answer_average_l: Answer_average_l,
-        Answer_average_p: Answer_average_p,
-        Answer_average_d: Answer_average_d,
-        Answer_average_3s: Answer_average_3s,
-        Answer_average_5s: Answer_average_5s
-    });
-
-    res.send("Enviado com sucesso!")
-   })()
-});
-
-//Envia dados do BD pra Rota
-router.get("/resultadoteste",(req,res) => {
-    Avaliacao.findAll( {raw: true, order:[
-        ['id','DESC'] //DESC = decrescente || ASC = crescente
-    ]}).then(avaliacao => {
-
-    res.json({             //Manda todas as notas da avaliação para o front, em ordem (mais recente primeiro).No front, iremos Usar fetch aqui?*/
-        avaliacao: avaliacao
-        });
-    }); 
-});
-
 router.get("/resultados",(req,res) => {
     Answer_average_l = math.mean(Question_id_answer.Question_id_answer_l.notas);
     Answer_average_o = math.mean(Question_id_answer.Question_id_answer_o.notas);
@@ -161,6 +123,7 @@ router.get("/resultados",(req,res) => {
         Answer_average_5s: (Answer_average_5s*100/5).toFixed(2)})
 });
 
+ 
 router.get("/avaliacaoid",(req,res) => {
     Avaliacao.findAll({
         attributes: ['id'],
@@ -169,6 +132,26 @@ router.get("/avaliacaoid",(req,res) => {
             res.send(           
                 avaliacaoid[0]
         )})
+});
+
+ //Salva no Banco de dados, em cima da avaliação criada inicialmente vazia
+router.post("/salvabd", (req,res) => {
+    (async() =>{
+        var id = req.body.id
+        await Avaliacao.update({
+            Question_id_answer: Question_id_answer,
+            Answer_average_u: Answer_average_u,
+            Answer_average_o: Answer_average_o,
+            Answer_average_l: Answer_average_l,
+            Answer_average_p: Answer_average_p,
+            Answer_average_d: Answer_average_d,
+            Answer_average_3s: Answer_average_3s,
+            Answer_average_5s: Answer_average_5s },
+            { where: {id: id}  //Precisa de body?
+        })
+        return res.send("Salvo com sucesso")
+
+    })();
 });
 
 module.exports = router;

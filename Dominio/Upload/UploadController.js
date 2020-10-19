@@ -10,13 +10,13 @@ app.use(bodyParser.json({limit:'50mb',extende:true}));
 
 router.post("/image", (req, res) => {       
 
-    //var avaliacaoId = req.body.avaliacaoId
-    //var titulo = req.body.titulo
+    var avaliacaoId = req.body.avaliacaoId
+    var titulo = req.body.titulo
     var image = req.body.image
 
     Upload.create({
-            //avaliacaoId: avaliacaoId,
-            //titulo: titulo,
+            avaliacaoId: avaliacaoId,
+            titulo: titulo,
             image: image
         });
 
